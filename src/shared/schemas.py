@@ -44,6 +44,22 @@ class RiskSeverity(str, Enum):
     LOW = "low"
 
 
+class SourceUrlType(str, Enum):
+    """Normalized type classification for a case study resource URL.
+
+    Used to categorise the online source so that manual verification
+    workflows know what kind of resource to expect at ``source_url``.
+    """
+    COMPANY_WEBSITE = "company_website"
+    WIKIPEDIA = "wikipedia"
+    BLOG_POST = "blog_post"
+    NEWS_ARTICLE = "news_article"
+    ACADEMIC = "academic"
+    INTERVIEW = "interview"
+    CASE_STUDY = "case_study"
+    OTHER = "other"
+
+
 class ExperimentType(str, Enum):
     """Types of validation experiments."""
     CUSTOMER_INTERVIEW = "customer_interview"
@@ -270,6 +286,7 @@ class CaseStudy:
     major_pivots: List[str] = field(default_factory=list)
     failure_modes: List[str] = field(default_factory=list)
     source_url: Optional[str] = None
+    source_url_type: Optional[SourceUrlType] = None
     tags: List[str] = field(default_factory=list)
     relevance_to_saas: str = "medium"
     summary: Optional[str] = None
@@ -417,6 +434,7 @@ def case_study_from_dict(
         major_pivots=data.get("major_pivots", []),
         failure_modes=data.get("failure_modes", []),
         source_url=data.get("source_url"),
+        source_url_type=SourceUrlType(data["source_url_type"]) if data.get("source_url_type") else None,
         tags=data.get("tags", []),
         relevance_to_saas=data.get("relevance_to_saas", "medium"),
         summary=data.get("summary"),

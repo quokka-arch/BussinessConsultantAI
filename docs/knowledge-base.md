@@ -76,6 +76,12 @@ Required business fields:
 - `what_worked`, `what_failed`, `failure_modes`
 - `why_succeeded_or_failed`, `timeline_months`, `outcome`, `published_year`, `source_type`
 
+Optional attribution fields:
+- `source_url`: direct URL to the primary online resource for this case study
+- `source_url_type`: normalized enum classification of the URL, one of `company_website`,
+  `wikipedia`, `blog_post`, `news_article`, `academic`, `interview`, `case_study`, or `other`.
+  Used by manual verification workflows to know what kind of resource to expect at `source_url`.
+
 Traceability fields required for extracted records:
 - `source_materials`: normalized source references with IDs and locators
 - `evidence`: field-level excerpts and rationale linked back to `source_id`

@@ -12,6 +12,7 @@ from shared.schemas import (
     CaseStudy,
     CaseStudySource,
     ConfidenceLevel,
+    SourceUrlType,
     case_study_from_dict,
 )
 
@@ -69,6 +70,8 @@ class CaseStudyExtractor:
             "- outcome\n"
             "- published_year\n"
             "- source_type\n"
+            "- source_url_type (optional; one of: company_website, wikipedia, blog_post, "
+            "news_article, academic, interview, case_study, other)\n"
             "- summary\n"
             "- tags\n"
             "- relevance_to_saas\n"
@@ -124,6 +127,7 @@ class CaseStudyExtractor:
     ) -> Dict[str, Any]:
         """Inject source attribution defaults from the workflow input."""
         payload.setdefault("source_url", source_metadata.get("url"))
+        payload.setdefault("source_url_type", source_metadata.get("source_url_type"))
         payload.setdefault("source_type", source_metadata.get("source_type", "article"))
         payload.setdefault("published_year", source_metadata.get("published_year", datetime.now(UTC).year))
 

@@ -12,7 +12,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
 from retrieval.case_study_extractor import CaseStudyExtractor
 from shared.case_studies import CaseStudyLibrary
-from shared.schemas import case_study_from_dict
+from shared.schemas import SourceUrlType, case_study_from_dict
 
 
 def _case_study_dataset_dir() -> Path:
@@ -52,6 +52,17 @@ class TestCaseStudySchemaValidation:
         assert all(study.source_materials for study in studies)
         assert all(study.evidence for study in studies)
         assert all(study.uncertainty_notes for study in studies)
+        assert all(study.source_url_type is not None for study in studies)
+
+    def test_seed_dataset_source_url_types(self):
+        """Each seed file should carry a recognised SourceUrlType value."""
+        valid_types = {t.value for t in SourceUrlType}
+        for dataset_path in _company_dataset_paths():
+            payload = json.loads(dataset_path.read_text())
+            for item in payload:
+                assert item.get("source_url_type") in valid_types, (
+                    f"{dataset_path.name}: missing or invalid source_url_type"
+                )
 
     def test_case_study_requires_traceability_for_extracted_records(self):
         """Traceable validation should reject records without evidence."""
@@ -142,6 +153,7 @@ class TestCaseStudyExtractor:
             "summary": "Collaborative browser design expanded bottom-up.",
             "tags": ["saas", "design"],
             "relevance_to_saas": "high",
+            "source_url_type": "blog_post",
             "evidence": [
                 {
                     "field_name": "go_to_market_approach",
@@ -185,6 +197,7 @@ class TestCaseStudyExtractor:
         assert study.extraction_metadata is not None
         assert study.extraction_metadata.extractor_agent == "case_study_extractor"
         assert study.source_url == "https://example.com/figma"
+        assert study.source_url_type == SourceUrlType.BLOG_POST
 
     def test_run_passes_selected_model_to_model_aware_callable(self):
         """Extractor should support model-aware callables without hardcoding a provider."""
@@ -224,6 +237,26 @@ class TestCaseStudyExtractor:
 
         assert "Sample article text" in called["messages"]["user"]
         assert study.company_name == "Figma"
+
+    def test_source_url_type_falls_back_to_source_metadata(self):
+        """When the LLM omits source_url_type, the extractor injects it from source_metadata."""
+        extractor = CaseStudyExtractor()
+        output = self._sample_llm_output()
+        del output["source_url_type"]
+
+        metadata = {**self._sample_source_metadata(), "source_url_type": "news_article"}
+        study = extractor.parse_response(llm_output=output, source_metadata=metadata)
+
+        assert study.source_url_type == SourceUrlType.NEWS_ARTICLE
+
+    def test_source_url_type_in_prompt(self):
+        """Prompt should list source_url_type and its allowed enum values."""
+        extractor = CaseStudyExtractor()
+        messages = extractor.build_messages(
+            source_text="Sample text",
+            source_metadata={"source_id": "s1", "title": "Test", "source_type": "article"},
+        )
+        assert "source_url_type" in messages["user"]
 
     def test_parse_response_requires_uncertainty_notes(self):
         """Extractor should reject outputs that omit uncertainty handling."""

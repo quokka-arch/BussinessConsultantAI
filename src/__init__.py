@@ -16,6 +16,7 @@ from shared.schemas import (
 from intake.processor import IntakeProcessor, IntakeValidator
 from shared.evaluation import IdeaScorer, RiskIdentifier, AssumptionIdentifier
 from shared.case_studies import CaseStudyLibrary
+from retrieval.case_study_extractor import CaseStudyExtractor
 
 __all__ = [
     "IntakeForm",
@@ -27,4 +28,5 @@ __all__ = [
     "RiskIdentifier",
     "AssumptionIdentifier",
     "CaseStudyLibrary",
+    "CaseStudyExtractor",
 ]

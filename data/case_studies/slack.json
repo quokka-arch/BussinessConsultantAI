@@ -33,6 +33,7 @@
     "published_year": 2013,
     "source_type": "case_study",
     "source_url": "https://slack.com",
+    "source_url_type": "company_website",
     "tags": ["saas", "product-led-growth", "collaboration"],
     "relevance_to_saas": "high",
     "summary": "A pivoted internal collaboration tool that found product-market fit with team-based adoption.",

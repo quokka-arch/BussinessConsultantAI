@@ -36,6 +36,7 @@
     "published_year": 2003,
     "source_type": "historical",
     "source_url": "https://en.wikipedia.org/wiki/Friendster",
+    "source_url_type": "wikipedia",
     "tags": ["consumer", "social-network", "infrastructure", "failure"],
     "relevance_to_saas": "medium",
     "summary": "An early social-network leader whose growth outpaced infrastructure and competitive execution.",

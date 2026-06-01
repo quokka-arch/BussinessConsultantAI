@@ -9,7 +9,13 @@ import csv
 import json
 from typing import List, Optional, Dict
 from pathlib import Path
-from shared.schemas import CaseStudy, BusinessStage
+from shared.schemas import (
+    BusinessStage,
+    CaseStudy,
+    case_study_from_dict,
+    to_dict,
+    validate_case_study,
+)
 import logging
 
 logger = logging.getLogger(__name__)
@@ -97,30 +103,8 @@ class CaseStudyLibrary:
         """Save case studies to JSON file."""
         data = []
         for study in self.studies.values():
-            data.append({
-                "case_id": study.case_id,
-                "company_name": study.company_name,
-                "industry": study.industry,
-                "business_model": study.business_model,
-                "customer_segment": study.customer_segment,
-                "stage_at_event": study.stage_at_event.value,
-                "founding_assumptions": study.founding_assumptions,
-                "key_decisions": study.key_decisions,
-                "major_pivots": study.major_pivots,
-                "go_to_market_approach": study.go_to_market_approach,
-                "pricing_strategy": study.pricing_strategy,
-                "what_worked": study.what_worked,
-                "what_failed": study.what_failed,
-                "failure_modes": study.failure_modes,
-                "why_succeeded_or_failed": study.why_succeeded_or_failed,
-                "timeline_months": study.timeline_months,
-                "outcome": study.outcome,
-                "published_year": study.published_year,
-                "source_url": study.source_url,
-                "source_type": study.source_type,
-                "tags": study.tags,
-                "relevance_to_saas": study.relevance_to_saas,
-            })
+            validate_case_study(study)
+            data.append(to_dict(study))
         
         with open(filepath, 'w') as f:
             json.dump(data, f, indent=2)
@@ -132,30 +116,7 @@ class CaseStudyLibrary:
             data = json.load(f)
         
         for item in data:
-            study = CaseStudy(
-                case_id=item["case_id"],
-                company_name=item["company_name"],
-                industry=item["industry"],
-                business_model=item["business_model"],
-                customer_segment=item["customer_segment"],
-                stage_at_event=BusinessStage(item["stage_at_event"]),
-                founding_assumptions=item["founding_assumptions"],
-                key_decisions=item["key_decisions"],
-                major_pivots=item.get("major_pivots", []),
-                go_to_market_approach=item["go_to_market_approach"],
-                pricing_strategy=item["pricing_strategy"],
-                what_worked=item["what_worked"],
-                what_failed=item["what_failed"],
-                failure_modes=item.get("failure_modes", []),
-                why_succeeded_or_failed=item["why_succeeded_or_failed"],
-                timeline_months=item["timeline_months"],
-                outcome=item["outcome"],
-                published_year=item["published_year"],
-                source_url=item.get("source_url"),
-                source_type=item["source_type"],
-                tags=item.get("tags", []),
-                relevance_to_saas=item.get("relevance_to_saas", "medium"),
-            )
+            study = case_study_from_dict(item)
             self.add_study(study)
         
         logger.info(f"Loaded {len(data)} case studies from {filepath}")

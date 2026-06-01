@@ -1,0 +1,83 @@
+[
+  {
+    "case_id": "seed_slack_success",
+    "company_name": "Slack",
+    "industry": "SaaS - Team Communication",
+    "business_model": "B2B SaaS",
+    "customer_segment": "Engineering teams and enterprises",
+    "stage_at_event": "launched",
+    "founding_assumptions": [
+      "Teams need a faster collaboration layer than email.",
+      "A free entry point can drive bottoms-up adoption."
+    ],
+    "key_decisions": [
+      "Repositioned an internal tool as the primary product.",
+      "Focused distribution on collaborative teams with many integrations."
+    ],
+    "major_pivots": [
+      "Pivoted from Tiny Speck's game business into workplace communication software."
+    ],
+    "go_to_market_approach": "Product-led growth with a free tier and team-based viral adoption.",
+    "pricing_strategy": "Freemium with paid per-seat upgrades.",
+    "what_worked": [
+      "Internal collaboration pain was acute and easy to demonstrate.",
+      "Integrations and team invitations reinforced retention."
+    ],
+    "what_failed": [
+      "Early enterprise competition was stronger than initially assumed."
+    ],
+    "failure_modes": [],
+    "why_succeeded_or_failed": "Slack succeeded because it pivoted into a concrete team communication problem, used product-led distribution, and benefited from strong collaborative network effects.",
+    "timeline_months": 48,
+    "outcome": "success",
+    "published_year": 2013,
+    "source_type": "case_study",
+    "source_url": "https://slack.com",
+    "tags": ["saas", "product-led-growth", "collaboration"],
+    "relevance_to_saas": "high",
+    "summary": "A pivoted internal collaboration tool that found product-market fit with team-based adoption.",
+    "source_materials": [
+      {
+        "source_id": "slack_case_primary",
+        "title": "Slack company history and product overview",
+        "source_type": "company",
+        "url": "https://slack.com",
+        "locator": "Company overview",
+        "published_year": 2013,
+        "notes": "Company-controlled source; growth framing may be optimistic."
+      }
+    ],
+    "evidence": [
+      {
+        "field_name": "major_pivots",
+        "source_id": "slack_case_primary",
+        "excerpt": "Slack originated as an internal communication tool built by Tiny Speck before becoming its main product.",
+        "rationale": "Supports the major pivot and origin story.",
+        "confidence": "high",
+        "locator": "Company overview"
+      },
+      {
+        "field_name": "go_to_market_approach",
+        "source_id": "slack_case_primary",
+        "excerpt": "Slack's growth is commonly described through team invites, integrations, and free-to-paid expansion.",
+        "rationale": "Supports the product-led distribution framing.",
+        "confidence": "medium",
+        "locator": "Company overview"
+      }
+    ],
+    "uncertainty_notes": [
+      "Timeline is rounded from public launch narratives.",
+      "Competitive pressure is synthesized from widely cited summaries rather than a single primary source."
+    ],
+    "extraction_metadata": {
+      "extractor_agent": "case_study_extractor",
+      "prompt_version": "case-study-extractor-v1",
+      "extraction_confidence": "medium",
+      "extraction_notes": [
+        "Seed example for curated dataset structure."
+      ],
+      "manual_review_required": true,
+      "extracted_at": "2026-06-01T00:00:00"
+    }
+  }
+]

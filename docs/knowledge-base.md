@@ -14,6 +14,8 @@ Track structured fields:
 - Key decisions, pivots, GTM and pricing approach
 - What worked, what failed, and why
 - Outcome and timeline
+- Traceability via `source_materials`, `evidence`, and `uncertainty_notes`
+- Extraction metadata for prompt version, agent identity, and review status
 
 Primary use:
 - Analog matching
@@ -62,3 +64,41 @@ For the first release, curate:
 - Separate facts from interpretation.
 - Mark stale or uncertain entries.
 - Avoid invented companies, metrics, or outcomes.
+
+## Normalized Case Study Schema
+
+Curated or extracted case studies should follow the normalized schema implemented in `src/shared/schemas.py`.
+
+Required business fields:
+- `case_id`, `company_name`, `industry`, `business_model`, `customer_segment`
+- `stage_at_event`, `founding_assumptions`, `key_decisions`, `major_pivots`
+- `go_to_market_approach`, `pricing_strategy`
+- `what_worked`, `what_failed`, `failure_modes`
+- `why_succeeded_or_failed`, `timeline_months`, `outcome`, `published_year`, `source_type`
+
+Traceability fields required for extracted records:
+- `source_materials`: normalized source references with IDs and locators
+- `evidence`: field-level excerpts and rationale linked back to `source_id`
+- `uncertainty_notes`: open questions, ambiguity, or assumptions made during curation
+- `extraction_metadata`: extractor name, prompt version, confidence, timestamp, and review flag
+
+## Seed Dataset Structure
+
+Seed examples live in `data/case_studies/` as company-named JSON files such as:
+- `data/case_studies/slack.json`
+- `data/case_studies/friendster.json`
+
+Use those files as the canonical example for how curated records should be stored:
+- one JSON file per company, named with the normalized company name
+- one JSON array entry per case-study event for that company
+- keep both success and failure records for the same company in that company's file when both exist
+- keep evidence excerpts short and field-specific
+- preserve uncertainty instead of forcing false precision
+
+## Extraction Workflow
+
+1. Collect source text and source metadata for a case-study candidate.
+2. Run the `case_study_extractor` agent in `src/retrieval/case_study_extractor.py`.
+3. Review the draft JSON for evidence quality, missing details, and unsupported claims.
+4. Save approved records into `data/case_studies/` in the company JSON file for that record.
+5. Only promote records to the main knowledge base after human review clears `manual_review_required`.

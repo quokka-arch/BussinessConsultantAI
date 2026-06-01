@@ -31,6 +31,7 @@ Responsibilities:
 - Retrieve comparable success/failure case studies
 - Pull stage-relevant frameworks and benchmarks
 - Gather references from internal knowledge base
+- Run the side `case_study_extractor` agent to convert raw source material into traceable case-study records
 
 Output: ranked evidence package with source metadata.
 

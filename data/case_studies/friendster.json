@@ -1,0 +1,86 @@
+[
+  {
+    "case_id": "seed_friendster_failure",
+    "company_name": "Friendster",
+    "industry": "Consumer Social Network",
+    "business_model": "B2C Advertising",
+    "customer_segment": "General consumers",
+    "stage_at_event": "launched",
+    "founding_assumptions": [
+      "Real-identity social networking would spread rapidly through friend graphs.",
+      "Advertising could monetize a large consumer audience."
+    ],
+    "key_decisions": [
+      "Prioritized rapid user growth ahead of infrastructure resilience.",
+      "Delayed major strategic response while newer rivals improved performance."
+    ],
+    "major_pivots": [
+      "Attempted to reposition toward gaming after social-network leadership was lost."
+    ],
+    "go_to_market_approach": "Viral consumer adoption through friend invitations and social graph growth.",
+    "pricing_strategy": "Free product supported primarily by advertising expectations.",
+    "what_worked": [
+      "The early social graph concept drove strong initial user growth."
+    ],
+    "what_failed": [
+      "Frequent performance and uptime problems eroded user trust.",
+      "Competitive response lagged while Facebook improved product quality."
+    ],
+    "failure_modes": [
+      "Infrastructure collapsed under growth.",
+      "Product quality decline accelerated user churn."
+    ],
+    "why_succeeded_or_failed": "Friendster failed to sustain leadership because technical reliability and competitive execution did not keep pace with demand, undermining the network effects that initially drove adoption.",
+    "timeline_months": 60,
+    "outcome": "failure",
+    "published_year": 2003,
+    "source_type": "historical",
+    "source_url": "https://en.wikipedia.org/wiki/Friendster",
+    "tags": ["consumer", "social-network", "infrastructure", "failure"],
+    "relevance_to_saas": "medium",
+    "summary": "An early social-network leader whose growth outpaced infrastructure and competitive execution.",
+    "source_materials": [
+      {
+        "source_id": "friendster_historical_summary",
+        "title": "Friendster historical summary",
+        "source_type": "historical",
+        "url": "https://en.wikipedia.org/wiki/Friendster",
+        "locator": "History",
+        "published_year": 2003,
+        "notes": "Secondary source; should be supplemented with deeper primary research before production use."
+      }
+    ],
+    "evidence": [
+      {
+        "field_name": "what_failed",
+        "source_id": "friendster_historical_summary",
+        "excerpt": "Friendster struggled with speed and reliability issues during rapid growth.",
+        "rationale": "Supports the technical failure pattern.",
+        "confidence": "high",
+        "locator": "History"
+      },
+      {
+        "field_name": "major_pivots",
+        "source_id": "friendster_historical_summary",
+        "excerpt": "The company later shifted focus toward gaming after losing momentum as a social network.",
+        "rationale": "Supports the later pivot description.",
+        "confidence": "medium",
+        "locator": "History"
+      }
+    ],
+    "uncertainty_notes": [
+      "Revenue-model specifics are simplified because public summaries emphasize growth and infrastructure more than monetization.",
+      "The failure narrative combines multiple retrospective summaries."
+    ],
+    "extraction_metadata": {
+      "extractor_agent": "case_study_extractor",
+      "prompt_version": "case-study-extractor-v1",
+      "extraction_confidence": "medium",
+      "extraction_notes": [
+        "Seed example for curated dataset structure."
+      ],
+      "manual_review_required": true,
+      "extracted_at": "2026-06-01T00:00:00"
+    }
+  }
+]

@@ -35,6 +35,10 @@ MVP outputs:
 - Add source traces and confidence labels
 - Test with pilot founders
 
+Initial kickoff implementation now includes:
+- `src/recommendation/mvp_workflow.py`: orchestration for intake -> retrieval -> report generation
+- `src/retrieval/evidence_retriever.py`: comparable-case retrieval packaging for success/failure evidence
+
 ### Phase 3 (Weeks 5–6): Quality Loop
 
 - Add human reviewer workflow

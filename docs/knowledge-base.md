@@ -84,11 +84,14 @@ Traceability fields required for extracted records:
 
 ## Seed Dataset Structure
 
-Seed examples live in `/tmp/workspace/quokka-arch/BussinessConsultantAI/data/case_studies/seed_case_studies.json`.
+Seed examples live in `data/case_studies/` as company-named JSON files such as:
+- `data/case_studies/slack.json`
+- `data/case_studies/friendster.json`
 
-Use that file as the canonical example for how curated records should be stored:
-- one JSON array entry per case study
-- include both successful and failed businesses
+Use those files as the canonical example for how curated records should be stored:
+- one JSON file per company, named with the normalized company name
+- one JSON array entry per case-study event for that company
+- keep both success and failure records for the same company in that company's file when both exist
 - keep evidence excerpts short and field-specific
 - preserve uncertainty instead of forcing false precision
 
@@ -97,5 +100,5 @@ Use that file as the canonical example for how curated records should be stored:
 1. Collect source text and source metadata for a case-study candidate.
 2. Run the `case_study_extractor` agent in `src/retrieval/case_study_extractor.py`.
 3. Review the draft JSON for evidence quality, missing details, and unsupported claims.
-4. Save approved records into `data/case_studies/` as curated JSON entries.
+4. Save approved records into `data/case_studies/` in the company JSON file for that record.
 5. Only promote records to the main knowledge base after human review clears `manual_review_required`.

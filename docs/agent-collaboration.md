@@ -73,4 +73,6 @@ Reviewer checklist:
    - Confirm the outcome framing is balanced for both successful and failed businesses.
    - Keep `manual_review_required=true` until the draft is approved.
 4. **Curated record is stored in `data/case_studies/`**
+   - Use one company-named JSON file per business (for example, `slack.json`).
+   - Store multiple records for the same company in that file when you need both success and failure examples from different periods or initiatives.
    - Retain extraction metadata for auditability even after approval.

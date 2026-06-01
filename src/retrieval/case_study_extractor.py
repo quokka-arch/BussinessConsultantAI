@@ -3,6 +3,7 @@ Case study extraction agent for converting raw source material into schema-align
 """
 
 import json
+import inspect
 from copy import deepcopy
 from datetime import UTC, datetime
 from typing import Any, Callable, Dict, Optional, Union
@@ -16,6 +17,7 @@ from shared.schemas import (
 
 
 DEFAULT_PROMPT_VERSION = "case-study-extractor-v1"
+DEFAULT_MODEL = "gpt-4.1"
 
 
 class CaseStudyExtractor:
@@ -25,9 +27,11 @@ class CaseStudyExtractor:
         self,
         agent_name: str = "case_study_extractor",
         prompt_version: str = DEFAULT_PROMPT_VERSION,
+        default_model: str = DEFAULT_MODEL,
     ) -> None:
         self.agent_name = agent_name
         self.prompt_version = prompt_version
+        self.default_model = default_model
 
     def build_messages(
         self,
@@ -87,11 +91,16 @@ class CaseStudyExtractor:
         self,
         source_text: str,
         source_metadata: Dict[str, Any],
-        llm_callable: Callable[[Dict[str, str]], Union[str, Dict[str, Any]]],
+        llm_callable: Callable[..., Union[str, Dict[str, Any]]],
+        model: Optional[str] = None,
     ) -> CaseStudy:
         """Execute extraction with a supplied LLM callable."""
         messages = self.build_messages(source_text, source_metadata)
-        llm_output = llm_callable(messages)
+        llm_output = self._invoke_llm(
+            llm_callable=llm_callable,
+            messages=messages,
+            model=model or self.default_model,
+        )
         return self.parse_response(
             llm_output=llm_output,
             source_metadata=source_metadata,
@@ -149,6 +158,35 @@ class CaseStudyExtractor:
             },
         )
         return payload
+
+    @staticmethod
+    def _invoke_llm(
+        llm_callable: Callable[..., Union[str, Dict[str, Any]]],
+        messages: Dict[str, str],
+        model: str,
+    ) -> Union[str, Dict[str, Any]]:
+        """Call either a legacy prompt-only callable or a model-aware callable."""
+        signature = inspect.signature(llm_callable)
+        positional_params = [
+            parameter
+            for parameter in signature.parameters.values()
+            if parameter.kind in (
+                inspect.Parameter.POSITIONAL_ONLY,
+                inspect.Parameter.POSITIONAL_OR_KEYWORD,
+            )
+        ]
+        has_varargs = any(
+            parameter.kind == inspect.Parameter.VAR_POSITIONAL
+            for parameter in signature.parameters.values()
+        )
+
+        if has_varargs or len(positional_params) >= 2:
+            return llm_callable(model, messages)
+        if len(positional_params) == 1:
+            return llm_callable(messages)
+        raise TypeError(
+            "llm_callable must accept either (messages) or (model, messages)."
+        )
 
     @staticmethod
     def _source_material_dict(source_metadata: Dict[str, Any]) -> Dict[str, Optional[str]]:

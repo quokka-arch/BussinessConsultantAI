@@ -15,24 +15,39 @@ from shared.case_studies import CaseStudyLibrary
 from shared.schemas import case_study_from_dict
 
 
+def _case_study_dataset_dir() -> Path:
+    return Path(__file__).parent.parent.parent / "data" / "case_studies"
+
+
+def _company_dataset_paths():
+    return sorted(_case_study_dataset_dir().glob("*.json"))
+
+
+def _normalize_company_filename(name: str) -> str:
+    return name.lower().replace(" ", "_").replace("-", "_")
+
+
 class TestCaseStudySchemaValidation:
     """Validate structured case-study records with traceability fields."""
 
     def test_seed_dataset_examples_validate(self):
         """Seed examples should validate as traceable case studies."""
-        seed_path = (
-            Path(__file__).parent.parent.parent
-            / "data"
-            / "case_studies"
-            / "seed_case_studies.json"
-        )
-        payload = json.loads(seed_path.read_text())
+        dataset_paths = _company_dataset_paths()
 
-        studies = [
-            case_study_from_dict(item, require_traceability=True)
-            for item in payload
-        ]
+        studies = []
+        for dataset_path in dataset_paths:
+            payload = json.loads(dataset_path.read_text())
+            assert payload
+            assert {
+                _normalize_company_filename(item["company_name"])
+                for item in payload
+            } == {dataset_path.stem}
+            studies.extend(
+                case_study_from_dict(item, require_traceability=True)
+                for item in payload
+            )
 
+        assert len(dataset_paths) == 2
         assert len(studies) == 2
         assert all(study.source_materials for study in studies)
         assert all(study.evidence for study in studies)
@@ -66,17 +81,11 @@ class TestCaseStudySchemaValidation:
 
     def test_library_json_round_trip_preserves_traceability(self, tmp_path):
         """JSON save/load should preserve nested traceability data."""
-        seed_path = (
-            Path(__file__).parent.parent.parent
-            / "data"
-            / "case_studies"
-            / "seed_case_studies.json"
-        )
-        payload = json.loads(seed_path.read_text())
-
         library = CaseStudyLibrary(data_dir=str(tmp_path / "case_studies"))
-        for item in payload:
-            library.add_study(case_study_from_dict(item, require_traceability=True))
+        for dataset_path in _company_dataset_paths():
+            payload = json.loads(dataset_path.read_text())
+            for item in payload:
+                library.add_study(case_study_from_dict(item, require_traceability=True))
 
         output_path = tmp_path / "round_trip.json"
         library.save_to_json(str(output_path))
@@ -92,6 +101,60 @@ class TestCaseStudySchemaValidation:
 
 class TestCaseStudyExtractor:
     """Validate prompt construction and response parsing for extractor agent."""
+
+    @staticmethod
+    def _sample_source_metadata():
+        return {
+            "source_id": "figma_source",
+            "title": "Figma growth article",
+            "source_type": "article",
+            "url": "https://example.com/figma",
+            "published_year": 2024,
+            "locator": "Paragraphs 2-5",
+        }
+
+    @classmethod
+    def _sample_llm_output(cls):
+        return {
+            "case_id": "figma_growth_case",
+            "company_name": "Figma",
+            "industry": "SaaS - Design Tools",
+            "business_model": "B2B SaaS",
+            "customer_segment": "Designers and product teams",
+            "stage_at_event": "early_growth",
+            "founding_assumptions": [
+                "Cloud collaboration would beat desktop workflows."
+            ],
+            "key_decisions": [
+                "Prioritized browser-based collaboration."
+            ],
+            "major_pivots": [],
+            "go_to_market_approach": "Product-led adoption inside design teams.",
+            "pricing_strategy": "Freemium with paid team tiers.",
+            "what_worked": [
+                "Collaboration differentiated the product."
+            ],
+            "what_failed": [],
+            "failure_modes": [],
+            "why_succeeded_or_failed": "A collaborative design workflow created strong team-level pull.",
+            "timeline_months": 36,
+            "outcome": "success",
+            "summary": "Collaborative browser design expanded bottom-up.",
+            "tags": ["saas", "design"],
+            "relevance_to_saas": "high",
+            "evidence": [
+                {
+                    "field_name": "go_to_market_approach",
+                    "source_id": "figma_source",
+                    "excerpt": "Teams adopted Figma because multiple people could work together in the browser.",
+                    "rationale": "Supports the collaborative PLG positioning.",
+                    "confidence": "high",
+                }
+            ],
+            "uncertainty_notes": [
+                "Pricing details are summarized from public positioning."
+            ],
+        }
 
     def test_prompt_includes_traceability_requirements(self):
         """Prompt should explicitly request evidence and uncertainty fields."""
@@ -114,60 +177,53 @@ class TestCaseStudyExtractor:
         """Extractor should attach workflow source metadata before validation."""
         extractor = CaseStudyExtractor()
         study = extractor.parse_response(
-            llm_output={
-                "case_id": "figma_growth_case",
-                "company_name": "Figma",
-                "industry": "SaaS - Design Tools",
-                "business_model": "B2B SaaS",
-                "customer_segment": "Designers and product teams",
-                "stage_at_event": "early_growth",
-                "founding_assumptions": [
-                    "Cloud collaboration would beat desktop workflows."
-                ],
-                "key_decisions": [
-                    "Prioritized browser-based collaboration."
-                ],
-                "major_pivots": [],
-                "go_to_market_approach": "Product-led adoption inside design teams.",
-                "pricing_strategy": "Freemium with paid team tiers.",
-                "what_worked": [
-                    "Collaboration differentiated the product."
-                ],
-                "what_failed": [],
-                "failure_modes": [],
-                "why_succeeded_or_failed": "A collaborative design workflow created strong team-level pull.",
-                "timeline_months": 36,
-                "outcome": "success",
-                "summary": "Collaborative browser design expanded bottom-up.",
-                "tags": ["saas", "design"],
-                "relevance_to_saas": "high",
-                "evidence": [
-                    {
-                        "field_name": "go_to_market_approach",
-                        "source_id": "figma_source",
-                        "excerpt": "Teams adopted Figma because multiple people could work together in the browser.",
-                        "rationale": "Supports the collaborative PLG positioning.",
-                        "confidence": "high",
-                    }
-                ],
-                "uncertainty_notes": [
-                    "Pricing details are summarized from public positioning."
-                ],
-            },
-            source_metadata={
-                "source_id": "figma_source",
-                "title": "Figma growth article",
-                "source_type": "article",
-                "url": "https://example.com/figma",
-                "published_year": 2024,
-                "locator": "Paragraphs 2-5",
-            },
+            llm_output=self._sample_llm_output(),
+            source_metadata=self._sample_source_metadata(),
         )
 
         assert study.source_materials[0].source_id == "figma_source"
         assert study.extraction_metadata is not None
         assert study.extraction_metadata.extractor_agent == "case_study_extractor"
         assert study.source_url == "https://example.com/figma"
+
+    def test_run_passes_selected_model_to_model_aware_callable(self):
+        """Extractor should support model-aware callables without hardcoding a provider."""
+        called = {}
+        extractor = CaseStudyExtractor(default_model="gpt-4.1-mini")
+
+        def model_caller(model, messages):
+            called["model"] = model
+            called["messages"] = messages
+            return self._sample_llm_output()
+
+        study = extractor.run(
+            source_text="Sample article text",
+            source_metadata=self._sample_source_metadata(),
+            llm_callable=model_caller,
+            model="claude-sonnet-4.5",
+        )
+
+        assert called["model"] == "claude-sonnet-4.5"
+        assert "Sample article text" in called["messages"]["user"]
+        assert study.company_name == "Figma"
+
+    def test_run_supports_legacy_prompt_only_callable(self):
+        """Extractor should remain compatible with prompt-only callables."""
+        called = {}
+        extractor = CaseStudyExtractor()
+
+        def legacy_caller(messages):
+            called["messages"] = messages
+            return self._sample_llm_output()
+
+        study = extractor.run(
+            source_text="Sample article text",
+            source_metadata=self._sample_source_metadata(),
+            llm_callable=legacy_caller,
+        )
+
+        assert "Sample article text" in called["messages"]["user"]
+        assert study.company_name == "Figma"
 
     def test_parse_response_requires_uncertainty_notes(self):
         """Extractor should reject outputs that omit uncertainty handling."""
